@@ -1,0 +1,4 @@
+﻿export default function EventCard({ event, onRegister }) {
+ const date = new Date(event.starts_at);
+ return <article className="content-card"><div className="content-card__meta"><span>{date.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</span><span className={`badge ${event.spots_left === 0 ? 'badge--rejected' : 'badge--confirmed'}`}>{event.spots_left === 0 ? 'Full' : `${event.spots_left} places left`}</span></div><h3>{event.title}</h3><p>{event.description}</p><div className="small-muted">{date.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}  {event.venue}</div><div className="content-card__footer"><span className="small-muted">{event.registration_count} registered</span><button className="button button--primary" disabled={event.spots_left === 0} onClick={() => onRegister(event)}>Register</button></div></article>;
+}
