@@ -20,6 +20,7 @@ export default function AdminPanel({ events, onNotice, onEventAdded }) {
       const data = await request(`/admin/registrations${query}`, { headers: { 'x-admin-key': k } });
       setRows(data.registrations);
       setActiveKey(k);
+      setKey('');
       onNotice(null);
     } catch (e) {
       onNotice({ type: 'error', message: e.message });
@@ -51,7 +52,7 @@ export default function AdminPanel({ events, onNotice, onEventAdded }) {
     try {
       const data = await request('/admin/events', {
         method: 'POST',
-        headers: { 'x-admin-key': key },
+        headers: { 'x-admin-key': activeKey },
         body: JSON.stringify(eventForm)
       });
       setEventForm(emptyEvent);
@@ -86,7 +87,7 @@ export default function AdminPanel({ events, onNotice, onEventAdded }) {
             <input className="control" name="starts_at" type="datetime-local" value={eventForm.starts_at} onChange={changeEvent} required />
             <input className="control" name="venue" value={eventForm.venue} onChange={changeEvent} placeholder="Venue" required maxLength={180} />
             <input className="control" name="capacity" type="number" min="1" max="100000" value={eventForm.capacity} onChange={changeEvent} placeholder="Capacity" required />
-            <button className="button button--primary" disabled={!key || saving}>{saving ? 'Adding' : 'Add event'}</button>
+            <button className="button button--primary" disabled={!activeKey || saving}>{saving ? 'Adding' : 'Add event'}</button>
           </form>
         </div>
 

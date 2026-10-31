@@ -170,7 +170,7 @@ npm run frontend:task3  # Start frontend → http://localhost:5174
 
 | Target | Platform | Config |
 | :--- | :--- | :--- |
-| Frontend | Netlify | Base: `frontend`, Build: `npm run build`, Publish: `dist`, Env: `VITE_API_URL` |
+| Frontend | Vercel | Root: `frontend`, Build: `npm run build`, Output: `dist`, Env: `VITE_API_URL` |
 | Backend | Render | Root: `backend`, Start: `npm start`, Env: `PORT`, `ADMIN_KEY`, `DATABASE_PATH`, `FRONTEND_ORIGIN` |
 
 ---
