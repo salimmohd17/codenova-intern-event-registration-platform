@@ -3,7 +3,7 @@
 ## Create the database
 
 1. Create a Supabase project.
-2. Open **Project Settings → Database**.
+2. Open **Project Settings â†’ Database**.
 3. Copy the transaction pooler connection string for Node.js.
 4. Replace `[YOUR-PASSWORD]` with the database password.
 
