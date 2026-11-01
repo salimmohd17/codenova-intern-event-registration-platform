@@ -23,7 +23,7 @@ A multi-event registration portal where users browse upcoming tech events, see l
 | :--- | :--- |
 | **Frontend** | React 19 + Vite, Inter font |
 | **Backend** | Node.js + Express (ESM) |
-| **Database** | SQLite via `better-sqlite3` (WAL mode, cascade deletes) |
+| **Database** | PostgreSQL via Supabase and `pg` |
 | **Styling** | Custom CSS — navy/green theme, responsive layout |
 | **Auth** | Admin key via `x-admin-key` request header |
 
@@ -47,7 +47,7 @@ A multi-event registration portal where users browse upcoming tech events, see l
 task-3-event-registration/
 ├── backend/
 │   ├── src/
-│   │   ├── db.js              # SQLite setup, schema, seed events
+│   │   ├── db.js              # PostgreSQL connection pool and migrations
 │   │   ├── server.js          # Express entry point
 │   │   ├── validation.js      # Registration field validation
 │   │   └── routes/
@@ -171,7 +171,7 @@ npm run frontend:task3  # Start frontend → http://localhost:5174
 | Target | Platform | Config |
 | :--- | :--- | :--- |
 | Frontend | Vercel | Root: `frontend`, Build: `npm run build`, Output: `dist`, Env: `VITE_API_URL` |
-| Backend | Render | Root: `backend`, Start: `npm start`, Env: `PORT`, `ADMIN_KEY`, `DATABASE_PATH`, `FRONTEND_ORIGIN` |
+| Backend | Render | Root: `backend`, Start: `npm start`, Env: `PORT`, `ADMIN_KEY`, `DATABASE_URL`, `FRONTEND_ORIGIN` |
 
 ---
 
@@ -179,4 +179,4 @@ npm run frontend:task3  # Start frontend → http://localhost:5174
 
 - Admin routes are gated by `x-admin-key` — set a long private key in `.env`, never commit it
 - The unique `(event_id, email)` database constraint prevents duplicate registrations even under concurrent requests
-- SQLite works for single-instance deployments; use a managed database for multi-instance or ephemeral hosts
+- See [DATABASE_SETUP.md](./DATABASE_SETUP.md) for Supabase, migration, and Render setup.

@@ -1,38 +1,30 @@
-import Database from 'better-sqlite3';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import pg from 'pg';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const configured = process.env.DATABASE_PATH || './data/events.db';
-const dbPath = path.isAbsolute(configured) ? configured : path.resolve(process.cwd(), configured);
-fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+const { Pool } = pg;
 
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required');
+}
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS events (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  starts_at TEXT NOT NULL,
-  venue TEXT NOT NULL,
-  capacity INTEGER NOT NULL CHECK(capacity > 0),
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS registrations (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  full_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  organization TEXT NOT NULL,
-  interests TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'confirmed' CHECK(status IN ('confirmed','cancelled')),
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(event_id, email)
-);
-`);
+const isSupabase = /supabase\.co|supabase\.com/i.test(process.env.DATABASE_URL);
 
-export default db;
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+  max: Number(process.env.DATABASE_POOL_MAX || 10),
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+
+pool.on('error', (error) => {
+  console.error('Unexpected PostgreSQL pool error:', error);
+});
+
+export function query(text, params = []) {
+  return pool.query(text, params);
+}
+
+export async function checkDatabaseConnection() {
+  const result = await pool.query('SELECT current_database() AS database, NOW() AS server_time');
+  return result.rows[0];
+}

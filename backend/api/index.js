@@ -3,7 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import events from '../src/routes/events.js';
 import admin from '../src/routes/admin.js';
-import '../src/db.js';
+import { initializeDatabase } from '../src/migrate.js';
+await initializeDatabase();
 
 const app = express();
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN || true }));

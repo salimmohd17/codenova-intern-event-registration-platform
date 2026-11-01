@@ -3,7 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import events from './routes/events.js';
 import admin from './routes/admin.js';
-import './db.js';
+import { initializeDatabase } from './migrate.js';
+import { pool } from './db.js';
+await initializeDatabase();
 const app = express();
 app.get('/', (_req, res) => {
   res.json({ status: 'success', message: 'CodeNova Event Registration API is running.' });
@@ -47,4 +49,12 @@ app.use('/api/admin', admin);
 app.use((req,res) => res.status(404).json({ error: 'Route not found.' }));
 app.use((err,_req,res,_next) => { console.error(err); res.status(500).json({ error: 'Unexpected server error. Please try again.' }); });
 const port = Number(process.env.PORT || 5003);
-app.listen(port, '0.0.0.0', () => console.log(`Event Registration API listening on port ${port}`));
+const server = app.listen(port, '0.0.0.0', () => console.log(`Event Registration API listening on port ${port}`));
+for (const signal of ['SIGTERM', 'SIGINT']) {
+ process.on(signal, () => {
+  server.close(async () => {
+   await pool.end();
+   process.exit(0);
+  });
+ });
+}
